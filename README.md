@@ -122,6 +122,17 @@ None of these is drawn. Each is one stage misbehaving on the picture it is given
 
 `Fill 1` with every fault, spread and process at zero is the clip, byte for byte.
 
+[![Patchwork — a faulty LED wall, for Resolume](docs/video-thumb.png)](https://www.youtube.com/watch?v=UCtfAbSm1sI)
+
+*[Watch it](https://www.youtube.com/watch?v=UCtfAbSm1sI) — 62 seconds: the defaults' patchwork,
+three batches of cabinets, three cabinets repeated along the cable and scrolling the opposite
+way on every other row of the snake, then stepping and jumping, a cut rippling down the chain, a
+broken cable whose downstream cards hold, show their test pattern and then garbage, zebra stripes
+stuck and floating, supplies tripping on flashes, and the module and LED faults close up. Every
+frame is the real plugin's output: an FFGL plugin has no window, so the footage is rendered by
+this repository's own offline harness (`pwtest --pipe`, driven by a cue sheet) rather than filmed
+off a screen, and the clips are Resolume's bundled demo media.*
+
 ## Controls
 
 | Group | |
