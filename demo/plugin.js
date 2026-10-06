@@ -987,6 +987,7 @@ const mounted = mountDemo({
   tagline:
     'A faulty LED wall, as the signal chain it is. An LED wall is not one display but a few hundred small ones on a daisy chain: a processor cuts the picture into cabinets and sends them down a cable that snakes from cabinet to cabinet; each cabinet’s receiving card takes its rectangle by its place on the chain, applies its own calibration table and drives its modules one scan line at a time. Every stage can lie, and nothing is drawn: the patchwork, tiles repeated and flowing along the cable, everything downstream of a break gone black or frozen, a cut rippling down the chain, zebra stripes from a stuck address line, supplies sagging and tripping and red drooping as the wall heats up are those stages misbehaving on your picture.',
   repo: 'https://github.com/stoatworks-labs/patchwork',
+  page: 'https://stoatworks-labs.com/software/patchwork/',
 
   blurb:
     'It is Patchwork’s own seven passes — wall, ring, route, hold, stats, panel and display — ported from the repository to WebGL2 and driven by a JavaScript port of the plugin’s CPU half (the controls, the wall’s layout, the repeat’s motion, the time slots, the ring of past frames, the hold and the heat), which only a reader checks. It runs on generated clips in this page, frame by frame at your display’s rate.',
