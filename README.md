@@ -11,8 +11,8 @@
 > every motion, a lost card holds the last frame it received, the heat follows its
 > one-pole to 1e-7 with red drooping first, and a tripped supply blinks on the frame
 > it should — with fifteen negative controls and seven one-character mutants that
-> prove the checks can fail. It has **never been loaded into Resolume**, on either
-> platform. See [Status](#status).
+> prove the checks can fail. It has **never been loaded into Resolume on macOS**.
+> On Windows, a build of v0.1.0 loads, registers and renders in Resolume Arena 7.27.1 with all 54 host controls as declared, on software rendering. See [Status](#status).
 
 A faulty LED wall, as an FFGL effect for [Resolume](https://resolume.com) Arena and
 Avenue.
@@ -114,7 +114,7 @@ repeat is off by default: it is a choice, not a fault you would leave in.
 
 ## Status
 
-**v0.1.0, local and unreleased — 6 October 2026.**
+**v0.1.0, and honestly early — 6 October 2026.**
 
 ### Measured offline, on macOS
 
@@ -153,11 +153,20 @@ allocated only while Hop Delay or Lag Tiles is up. macOS figures only.
 
 ### Not established
 
-It has **never been loaded into Resolume**, on macOS or Windows. Everything above was
-compiled, rendered and measured offline against the real plugin class in a headless
-CGL context, plus an `oxbow` load. It has never been built on Windows. How 48 controls
-present in Arena's inspector, what the host's clock does to the processes over a long
-session, and how the faults read to someone who runs real walls are all untested.
+It has **never been loaded into Resolume on macOS**. Everything above was compiled,
+rendered and measured offline against the real plugin class in a headless CGL context,
+plus an `oxbow` load. What the host's clock does to the processes over a long session,
+and how the faults read to someone who runs real walls, are untested.
+
+**Windows, in Resolume Arena 7.27.1** (win-lab, Mesa llvmpipe, no GPU, 2026-10-06): a
+build of this source loads from Extra Effects, registers as `SW Patchwork` / `PW01` /
+effect, all 54 host controls match the declaration in name, order, type, range and
+default, it renders, and Arena's log stays clean: 9 of 9 of the fleet gate's checks.
+45 controls moved the picture (48 under a precondition); Heat Time, Hop Delay, Lag Tiles
+and Lag Frames were inconclusive, because the gate compares single frames of a still
+picture, and a delay or a time constant of a still picture is the same picture;
+`tools/sweep.py` proves all four on a moving card. Software rendering says nothing about
+a GPU or about speed.
 The mechanisms are real; the rates, the test pattern and the garbage are not any
 vendor's. No OpenFX port (not in scope for 0.1.0).
 

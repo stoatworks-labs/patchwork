@@ -295,8 +295,11 @@ GL state comes back; every control moves the picture.
 mechanisms are real; the rates and the look of the test pattern and the garbage are
 not a vendor's); the heat droop ratios and the 0.27 s restart; that 16 x 16 taps are
 a good enough tile mean on real pictures; that the host's clock behaves as pitch's
-vote expects. **Never loaded into Resolume**, on either platform. Never built on
-Windows. No browser demo yet, no OpenFX port.
+vote expects. **Never loaded into Resolume on macOS.** On Windows the fleet's Arena gate
+passed 9 of 9 on Arena 7.27.1 (llvmpipe, 2026-10-06): 45 controls moved a still carrier,
+48 under a precondition, and the four that act on motion or over seconds (Heat Time, Hop
+Delay, Lag Tiles, Lag Frames) were inconclusive there, as the expectation's notes say.
+No OpenFX port.
 
 ## Open design questions
 

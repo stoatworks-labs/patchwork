@@ -25,6 +25,10 @@ its end with Lost Signal on Test Pattern.*
 > holds the last frame it received; the heat follows its time constant to 1e-7. All 48 controls
 > measurably change the picture. It has **never been loaded into Resolume on macOS**. The one host
 > it has run in on a Mac is the fleet's own test host, `oxbow`, for 120 frames.
+> On Windows, a build of v0.1.0 loads, registers and renders in Resolume Arena 7.27.1, with every
+> control matching what the plugin declares — on software rendering, so that says nothing about a
+> GPU. Four controls that act on a moving picture or over seconds (Heat Time, Hop Delay, Lag Tiles,
+> Lag Frames) could not be shown moving there on a still picture.
 > Try it on a spare layer before you put it in a show.
 >
 > This codebase was created with AI assistance, directed and reviewed by a human author.

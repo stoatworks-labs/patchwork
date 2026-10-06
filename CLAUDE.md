@@ -80,9 +80,12 @@ parameter table (`Controls.cpp`).
   `stoatworks-website/scripts/build_guides.py patchwork`'s output, never edited by hand.
 
 ## Not done yet
-- Never loaded into Resolume. Never built on Windows. Not a fleet repo: no GitHub
-  repo, no `~/Projects/resolume/patchwork`, no registration, no tag.
-- No user guide, no browser demo, no OpenFX port.
+- Never loaded into Resolume on macOS. On Windows: the fleet's Arena gate, 9 of 9 on
+  Arena 7.27.1 (llvmpipe); the expectation is `plugin-bench/arena/expect/patchwork.json`,
+  drafted by `pwtest --expect`.
+- No OpenFX port.
+- Public at `github.com/stoatworks-labs/patchwork`, released v0.1.0 on 2026-10-06,
+  registered on the website.
 
 ## Diagnostics
 
