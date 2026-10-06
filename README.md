@@ -159,7 +159,9 @@ CGL context, plus an `oxbow` load. It has never been built on Windows. How 48 co
 present in Arena's inspector, what the host's clock does to the processes over a long
 session, and how the faults read to someone who runs real walls are all untested.
 The mechanisms are real; the rates, the test pattern and the garbage are not any
-vendor's. No user guide, no browser demo, no OpenFX port (not in scope for 0.1.0).
+vendor's. No OpenFX port (not in scope for 0.1.0).
+
+The [user guide](docs/USER-GUIDE.md) covers every control, what it does and why.
 
 ## Build
 

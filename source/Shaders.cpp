@@ -609,7 +609,11 @@ void main()
 	if( col >= t.x * Tile.x + m0.x )
 	{
 		v        = received( ivec2( col, led.y ), t, lost );
-		int bits = findMSB( Scan );
+		//log2 of the scan ratio, by a loop: findMSB is GLSL 4.00 and ES 3.10,
+		//and the browser demo runs this text in WebGL2's ES 3.00.
+		int bits = 0;
+		for( int s = Scan; s > 1; s >>= 1 )
+			++bits;
 		if( bits > 0 && TZebra > 0u && hash3( mkey, Seed, SALT_ZEBRA ) < TZebra )
 		{
 			int k     = ZebraWidth == 0 ? int( hash3( mkey, Seed, SALT_ZEBRA_K ) % uint( bits ) ) : min( ZebraWidth - 1, bits - 1 );

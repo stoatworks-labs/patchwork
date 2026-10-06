@@ -852,6 +852,116 @@ int runBench()
 }
 
 //===========================================================================
+// --expect: a draft of the fleet Arena gate's expectation, from what the
+// plugin really declares. Defaults are the floats the constructor sets, never
+// rounded literals (containment's trap). The gate compares single frames of a
+// STILL carrier, so every row holds Dropouts at 0 (the default 0.02 would
+// change the picture under every measurement), and a control that only acts
+// with another one set (tools/sweep.py --bare lists them) needs that one.
+//===========================================================================
+struct GateRow
+{
+	const char* name;
+	const char* needs;///< JSON object body, without the braces, beyond Dropouts 0
+	const char* probe;///< JSON array body, or nullptr for the gate's own
+	const char* note;
+};
+const GateRow kGateRows[] = {
+	{ "Fill", "\"LED Pitch\": 4", nullptr, nullptr },
+	{ "Tile W", "\"Tile Spread\": 1.0", nullptr, nullptr },
+	{ "Tile H", "\"Tile Spread\": 1.0", nullptr, nullptr },
+	{ "Modules X", "\"Module Spread\": 1.0", nullptr, nullptr },
+	{ "Modules Y", "\"Module Spread\": 1.0", nullptr, nullptr },
+	{ "Scan", "\"Zebra\": 1.0", nullptr, nullptr },
+	{ "Route", "\"Repeat Tiles\": 3, \"Repeat Motion\": \"Hold\", \"Repeat From\": 0.45", nullptr, nullptr },
+	{ "Start Corner", "\"Repeat Tiles\": 3, \"Repeat Motion\": \"Hold\", \"Repeat From\": 0.45", nullptr, nullptr },
+	{ "Tiles Per Port", "\"Repeat Tiles\": 3, \"Repeat Motion\": \"Hold\", \"Repeat From\": 0.5", "0, 5", nullptr },
+	{ "Batches", "\"Tile Spread\": 1.0, \"Colour Spread\": 1.0", "0, 2", nullptr },
+	{ "Heat", "\"Heat Time\": 0.0", nullptr, "acts over seconds of a bright picture: a single grab may read it inconclusive" },
+	{ "Heat Time", "\"Heat\": 1.0", nullptr, "acts over seconds of a bright picture: a single grab may read it inconclusive" },
+	{ "Repeat From", "\"Repeat Tiles\": 3, \"Repeat Motion\": \"Hold\"", "0.0, 0.5", nullptr },
+	{ "Repeat Reach", "\"Repeat Tiles\": 2, \"Repeat Motion\": \"Hold\", \"Repeat From\": 0.45", nullptr, nullptr },
+	{ "Repeat Motion", "\"Repeat Tiles\": 3, \"Repeat From\": 0.45", nullptr, "moves over time: Hold against Step/Scroll needs the clock to have run" },
+	{ "Repeat Speed", "\"Repeat Tiles\": 3, \"Repeat From\": 0.45, \"Repeat Motion\": \"Scroll\"", nullptr, "a speed: two grabs at one moment differ only once the clock has run" },
+	{ "Hop Delay", nullptr, nullptr, "a delay of a still carrier is the same picture: expected inconclusive (tools/sweep.py proves it on a moving card)" },
+	{ "Lag Tiles", nullptr, nullptr, "a delay of a still carrier is the same picture: expected inconclusive (tools/sweep.py proves it on a moving card)" },
+	{ "Lag Frames", "\"Lag Tiles\": 1.0", nullptr, "a delay of a still carrier is the same picture: expected inconclusive (tools/sweep.py proves it on a moving card)" },
+	{ "Intermittent", "\"Chain Break\": 1.0", nullptr, "a connector re-decided ten times a second: may read inconclusive on single grabs" },
+	{ "Dropouts", "", nullptr, "a random process in time" },
+	{ "Dropout Time", "\"Dropouts\": 0.5", nullptr, "a random process in time" },
+	{ "Lost Signal", "\"Chain Break\": 1.0", nullptr, nullptr },
+	{ "Flicker Tiles", nullptr, nullptr, "a random process in time" },
+	{ "Flicker Rate", "\"Flicker Tiles\": 1.0", nullptr, "a random process in time" },
+	{ "PSU Mode", "\"PSU Limit\": 0.2", nullptr, nullptr },
+	{ "Zebra Width", "\"Zebra\": 1.0", nullptr, nullptr },
+	{ "Zebra Mode", "\"Zebra\": 1.0", nullptr, "Floating redraws every frame" },
+	{ "Fault Seed", nullptr, "1, 2", nullptr },
+};
+
+int runExpect()
+{
+	Patchwork plugin;
+	auto escape = []( const std::string& s ) {
+		std::string out;
+		for( char c : s )
+		{
+			if( std::isalnum( static_cast< unsigned char >( c ) ) )
+				out += c;
+			else
+				out += std::string( "\\\\" ) + c;
+		}
+		return out;
+	};
+	std::printf( "{\n  \"plugin\": \"patchwork\",\n  \"dlls\": [\"Patchwork.dll\"],\n"
+	             "  \"register\": [\n    {\"name\": \"SW Patchwork\", \"uid\": \"PW01\", \"kind\": \"effect\"}\n  ],\n"
+	             "  \"params\": {\n    \"SW Patchwork\": [\n" );
+	//Arena's own first: Opacity, held where the effect is plainly not the input.
+	std::printf( "      {\"name\": \"Opacity\", \"type\": \"ParamRange\", \"min\": 0.0, \"max\": 1.0, \"default\": 1.0, "
+	             "\"needs\": {\"Dropouts\": 0.0, \"Tile Spread\": 1.0}},\n" );
+	const std::vector< NamedParameter > list = listParameters( plugin );
+	for( size_t i = 0; i < list.size(); ++i )
+	{
+		const NamedParameter& p = list[ i ];
+		std::string line        = "      {\"name\": \"" + p.name + "\", ";
+		if( p.type == FF_TYPE_OPTION )
+			line += "\"type\": \"ParamChoice\", \"default\": \"" + std::string( plugin.GetParamElementName( p.index, static_cast< unsigned int >( std::lround( p.value ) ) ) ) + "\"";
+		else if( p.type == FF_TYPE_EVENT )
+			line += "\"type\": \"ParamEvent\"";
+		else if( p.type == FF_TYPE_TEXT )
+			line += "\"type\": \"ParamString\", \"default_pattern\": \"^" + escape( "Patchwork v" ) + "{version}" + escape( " - MIT - Stoatworks Labs, stoatworks-labs.com" ) + "$\"";
+		else
+		{
+			const float lo = p.type == FF_TYPE_INTEGER ? plugin.GetParamRange( p.index ).min : 0.0f;
+			const float hi = p.type == FF_TYPE_INTEGER ? plugin.GetParamRange( p.index ).max : 1.0f;
+			line += fmt( "\"type\": \"ParamRange\", \"min\": %.1f, \"max\": %.1f, \"default\": %.17g", lo, hi, static_cast< double >( p.value ) );
+		}
+		if( p.name.size() == 16 )
+			line += ", \"declared\": \"" + p.name + "\"";
+		const bool control = p.type != FF_TYPE_EVENT && p.type != FF_TYPE_TEXT;
+		const GateRow* row = nullptr;
+		for( const GateRow& r : kGateRows )
+			if( p.name == r.name )
+				row = &r;
+		if( control )
+		{
+			std::string needs = p.name == "Dropouts" ? "" : "\"Dropouts\": 0.0";
+			if( row && row->needs && *row->needs )
+				needs += ( needs.empty() ? "" : ", " ) + std::string( row->needs );
+			if( !needs.empty() )
+				line += ", \"needs\": {" + needs + "}";
+			if( row && row->probe )
+				line += ", \"probe\": [" + std::string( row->probe ) + "]";
+			if( row && row->note )
+				line += ", \"note\": \"" + std::string( row->note ) + "\"";
+		}
+		line += i + 1 < list.size() ? "},\n" : "}\n";
+		std::printf( "%s", line.c_str() );
+	}
+	std::printf( "    ]\n  }\n}\n" );
+	return 0;
+}
+
+//===========================================================================
 // The checks.
 //
 // Each takes a Perturb. With every field at its default the check scores the
@@ -2116,7 +2226,8 @@ int main( int argc, char** argv )
 			             "  --list            every parameter and its default\n"
 			             "  --pipe            raw RGBA frames in on stdin, out on stdout\n"
 			             "  --film N          N frames of the card, raw RGBA on stdout\n"
-			             "  --script PATH     cues for --pipe/--film: 'frame Name value'\n\n"
+			             "  --script PATH     cues for --pipe/--film: 'frame Name value'\n"
+			             "  --expect          a draft of the fleet Arena gate's expectation\n\n"
 			             "  checks: --identity --tiles --batches --zebra --chain --repeat --hold --heat --psu --leds --resize --state\n"
 			             "          no GL: --chain-law --motion-law --cues --names\n"
 			             "          --negative   --bench\n"
@@ -2174,6 +2285,8 @@ int main( int argc, char** argv )
 	if( sizeGiven )
 		kRasters = { { width, height } };
 
+	if( mode == "expect" )
+		return runExpect();
 	if( mode == "list" )
 	{
 		Patchwork plugin;

@@ -60,6 +60,18 @@ fi
 echo "   none"
 
 #---------------------------------------------------------------------------
+step "GLSL: nothing WebGL2 lacks"
+#---------------------------------------------------------------------------
+# The browser demo runs these shaders unedited in WebGL2 (GLSL ES 3.00), and the
+# kit's port() translates spellings, never maths. These built-ins arrived in
+# GLSL 4.00 / ES 3.10 and compile everywhere here but there: findMSB was in the
+# panel shader until 2026-10-06.
+if grep -nE '(^|[^A-Za-z_])(findMSB|findLSB|bitCount|bitfieldExtract|bitfieldInsert|bitfieldReverse|uaddCarry|usubBorrow|umulExtended|imulExtended|frexp|ldexp|fma|textureGather|textureQueryLevels|packUnorm4x8|unpackUnorm4x8)[[:space:]]*\(' source/Shaders.cpp | grep -vE '^[0-9]+:[[:space:]]*//' ; then
+	fail "a built-in GLSL ES 3.00 does not have is in the GLSL"
+fi
+echo "   none"
+
+#---------------------------------------------------------------------------
 step "Shaders"
 #---------------------------------------------------------------------------
 tools/glslc.sh || fail "a shader does not compile"
