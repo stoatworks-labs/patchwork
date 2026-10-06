@@ -391,6 +391,10 @@ sizes if they could not be allocated, with the advice to try a larger LED Pitch.
 - **Each chain repeats its own N cabinets** when there are several ports.
 - **No presets**, no audio or beat input (Resolume can drive any control from either), and no
   OpenFX version.
+- **There is a browser demo** at [patchwork-demo.stoatworks-labs.com](https://patchwork-demo.stoatworks-labs.com).
+  It is a port to a web page, not the plugin: the shaders run unedited in WebGL2 and the CPU
+  half is rewritten in JavaScript. Its delays count the browser's frames rather than a
+  composition's. The page lists everything it does not reproduce.
 
 ---
 
