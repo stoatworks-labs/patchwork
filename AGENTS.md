@@ -274,6 +274,7 @@ the plugin ships, not a copy.
     tools/
       pwtest/main.cpp     the harness: render, --pipe/--film/--script, every check
       verify.sh           everything; mutate.sh, sweep.py, glslc.sh
+    demo/                 the browser demo: plugin.js (the port), shaders.js (generated), vendor/ (the kit)
 
 ## What is genuinely verified, and what is assumed
 
@@ -299,7 +300,91 @@ vote expects. **Never loaded into Resolume on macOS.** On Windows the fleet's Ar
 passed 9 of 9 on Arena 7.27.1 (llvmpipe, 2026-10-06): 45 controls moved a still carrier,
 48 under a precondition, and the four that act on motion or over seconds (Heat Time, Hop
 Delay, Lag Tiles, Lag Frames) were inconclusive there, as the expectation's notes say.
-No OpenFX port.
+No OpenFX port. The browser demo is a port, below.
+
+## The browser demo (2026-10-06)
+
+`demo/` is <https://patchwork-demo.stoatworks-labs.com>, built to the fleet's
+`resolume-demo` kit rules (`~/Projects/resolume/specs/DEMO-BRIEF.md`) by a sub-agent of
+the release session. What a reader of it must know:
+
+- **The shaders are the plugin's**: all ten pieces plus kVersion, spliced by
+  `demo/tools/check_shaders.py --write` into `demo/shaders.js`, AND the order the
+  plugin joins them in, read out of `Assemble()`'s switch, the `Pass` enum and
+  InitGL's vertex line into `ASSEMBLY`; the page builds every program from that
+  table. The script compares every piece character for character, refuses a piece
+  of Shaders.cpp it does not copy, compares each stage's assembly, and finally
+  requires the file to be exactly what `--write` produces; `tools/verify.sh` runs
+  it. Negative-controlled once, 8 of 8 caught: the zebra's partner one bit high in
+  shaders.js, the repeat against the cable in Shaders.cpp only, stats assembled
+  without kSignal, panel's pieces reordered in ASSEMBLY, a new piece in
+  Shaders.cpp, an extra export typed into shaders.js, a Pass with no case, and a
+  different vertex assembly. **All seven passes compile in WebGL2 as spliced**
+  (the kit's `port()` adds the ES precision lines, `sampler2DArray`'s included)
+  now that the panel counts the scan bits by a loop instead of `findMSB`.
+- **The CPU half is a port that only a reader checks**: Controls.cpp's table (as
+  `TABLE`, in ParamId order) and every conversion, `IntegerOf`, `OptionIndex`,
+  `ScanGroups`, `ThresholdU32`; `wall::MakeLayout` (only what ProcessOpenGL uses:
+  the cable's order is the GLSL's); `RepeatMotion` (`Advance` per frame,
+  `OffsetLeds` with Random's PCG from Hash.h via `Math.imul`), the full and last
+  chains' shifts; `wall::SlotOf` (`whole >>> 0` is the uint32 reduction, the float
+  carry kept); the ring (`TEXTURE_2D_ARRAY` RGBA8, depth `clamp(256 MB / layer, 2,
+  32)`, write and fill, delays off if `getError` says the allocation failed, a 1 x 1
+  x 1 array on the unit when there is none); the hold and state ping-pongs and
+  their validity flags; `1 - exp(-dt/tau)` in double; the 0.27 s restart; the
+  frame counter; the test pattern's phase. Uniforms are set by the type the linked
+  program declares (`getActiveUniform`), since JavaScript has one number type; a
+  name no pass declares is shown in the status line rather than left as a dead
+  control.
+- **Compared once with the plugin, and it agreed byte for byte.** A scratch script
+  gated the page's animation frames headlessly (Chrome, ANGLE on Metal, this Mac's
+  M4 Max): the first frame at t = 0, then Pause and one Step (1/60 s) per frame,
+  the canvas read back with `preserveDrawingBuffer` forced on; the clip frames came
+  from the same page at Mix 0 (which returns its input exactly) and went through
+  `pwtest --pipe` with the same `--set`s, at 640 x 360, 40 frames each. Nine
+  settings identical in every byte: the defaults; Repeat Tiles 3 scrolling at 1 and
+  at 2.88 cabinets/s; Random on a column snake from the bottom right; Ping-Pong at
+  -8/s over chains of 11 with a last chain of 4; Chain Break 1 under Hold with
+  Dropouts 0.2 in 0.13 s slots; a break under Garbage with Floating zebra over
+  chains of 9; Hop Delay 1 frame/hop with Lag; Hiccup at limit 0.19 with Heat 1,
+  tau 1 s. The tenth,
+  27 controls moved at once (Mix 0.8, Fill 0.4), differed in 2 of 9.2 million
+  pixels by one level. The identity preset returns the page's own clip byte for
+  byte. The comparer can fail: the plugin on Fault Seed 2 differs in 98% of pixels,
+  one frame out of step in 30%, and seven one-line mutants of the PORT were each
+  caught (restart 0.30 s, Scroll rounding instead of flooring, RingFilled one high,
+  Random's salt one bit off, HoldValid always 1, the frame counter counting two,
+  the last chain's shift 7 LEDs off). One survived and is recorded rather than
+  explained away: the last chain's shift left unreduced (m, not m mod N'L) differs
+  from the right one only where R goes negative, in a few LED columns at the start
+  of the last chain on frames where m >= N'L, and on this GPU it made no
+  difference there. On SwiftShader the same comparison is within 2 levels
+  (another rasteriser's half-float rounding). Nothing repeats any of this; a change
+  to the C++ half needs the port changed by hand.
+- **Decisions taken without asking.** The clock is the page's seconds (the unit
+  vote not ported); dt is the plugin's (bounded at 0.25 s, 0 backwards), though the
+  kit already caps a frame at 0.1 s. **A redraw with the clock stopped (a control
+  moved under Pause) does not write the ring or count a frame**, readout's page's
+  choice, so a paused ripple and a paused Garbage hold still; the hold, the state
+  and everything else run as a host frame with no time passing, which the
+  comparison above shows changes nothing they hold. The ten integer controls are
+  dropdowns of every value in their range (the page's value is the index, the
+  plugin's integer the minimum plus it). The presets are the page's own, after the
+  user guide's "Start here"; the plugin ships none. The clips, moving ones first:
+  scene, spot, grid, bars, ramp, detail, alpha.
+- **Differences, all said on the page:** the page's frames are the display's, so
+  Hop Delay and Lag count browser frames (a 120 Hz display ripples twice as fast in
+  seconds); Restart replays the slots from 0 while heat, hiccup, hold, ring and
+  phase carry on; the paused-redraw rule; integer dropdowns and what a shared link
+  carries; a 265 MB ring at LED Pitch 1 and 1080p may be refused by a browser (the
+  plugin's own fallback, delays off, said in the status line); still clips show no
+  delay or Hold; no About block; no audio in the plugin to miss.
+- **Seen, not a fault:** headless Chrome on SwiftShader logs "GPU stall due to
+  ReadPixels" four times; a clear-only WebGL2 page logs the same four, so it is the
+  headless compositor, not this page (on Metal there are none). The live page logs
+  one console error that is not the page's: the zone's injected
+  `/cdn-cgi/challenge-platform` script blocked by `script-src 'self'`, as on every
+  `*-demo` host. Locally there are no errors.
 
 ## Open design questions
 

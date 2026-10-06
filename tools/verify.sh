@@ -77,6 +77,26 @@ step "Shaders"
 tools/glslc.sh || fail "a shader does not compile"
 
 #---------------------------------------------------------------------------
+step "Browser demo's shaders"
+#---------------------------------------------------------------------------
+# demo/shaders.js carries copies of source/Shaders.cpp's pieces and the order
+# Assemble() joins them in. A copy that drifts still paints a plausible faulty
+# wall, so the drift has to fail here instead: rerun
+# `python3 demo/tools/check_shaders.py --write` after changing a shader.
+if [[ -f demo/tools/check_shaders.py ]]; then
+	log="$( mktemp )"
+	if python3 demo/tools/check_shaders.py >"$log" 2>&1; then
+		echo "   $( tail -1 "$log" )"
+	else
+		tail -14 "$log"
+		fail "the demo's shaders have drifted from source/Shaders.cpp"
+	fi
+	rm -f "$log"
+else
+	echo "   skipped: no demo/"
+fi
+
+#---------------------------------------------------------------------------
 step "Submodule"
 #---------------------------------------------------------------------------
 if [[ ! -f external/ffgl/CMakeLists.txt ]]; then

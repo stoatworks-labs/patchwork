@@ -172,6 +172,21 @@ vendor's. No OpenFX port (not in scope for 0.1.0).
 
 The [user guide](docs/USER-GUIDE.md) covers every control, what it does and why.
 
+## Browser demo
+
+**<https://patchwork-demo.stoatworks-labs.com/>** — every control, with the plugin's own
+names, groups and defaults. The seven passes are the plugin's own GLSL, spliced unedited
+into `demo/shaders.js` with the order `Assemble()` joins them in
+(`demo/tools/check_shaders.py`, run by `tools/verify.sh`, fails on a changed character or
+a changed order). The CPU half — the controls, the wall's layout, the repeat's motion, the
+time slots, the ring of past frames, the hold and the heat — is a JavaScript port in
+`demo/plugin.js` that **nothing checks but a reader**; compared once with `pwtest --pipe`
+on the same frames, nine settings of ten agreed byte for byte over 40 frames and the
+tenth in all but 2 pixels of 9.2 million, by one level. It runs on the page's generated clips
+at the display's frame rate, so Hop Delay counts the browser's frames, not a
+composition's; the integer controls are dropdowns. It is a demo, not the plugin, and the
+page says what it does not reproduce.
+
 ## Build
 
 Needs CMake 3.15+, a C++17 compiler, and the FFGL SDK submodule.

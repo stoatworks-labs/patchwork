@@ -79,6 +79,22 @@ parameter table (`Controls.cpp`).
 - The user guide is `docs/USER-GUIDE.md`; `docs/USER-GUIDE.pdf` and the site's copy are
   `stoatworks-website/scripts/build_guides.py patchwork`'s output, never edited by hand.
 
+## Browser demo
+- `demo/` is the page at https://patchwork-demo.stoatworks-labs.com (Cloudflare
+  Worker `patchwork-demo`, a ROUTE on a proxied AAAA 100:: record -- the zone's
+  custom domains are full; deleting the record takes the page dark with a green
+  deploy). `deploy.yml` redeploys it on a push to main; by hand:
+  `cf-run npx wrangler deploy`.
+- `demo/shaders.js` is GENERATED, pieces and `ASSEMBLY` order both: after changing
+  `source/Shaders.cpp` (or `Assemble()`, the Pass enum or InitGL's vertex line) run
+  `python3 demo/tools/check_shaders.py --write`; verify.sh fails on drift.
+- The CPU half in `demo/plugin.js` (Controls.cpp's table and conversions,
+  `MakeLayout`, `RepeatMotion`, `SlotOf`, the ring, the ping-pongs, the heat alpha,
+  the frame counter) is a hand port nobody checks but a reader: change it with the
+  C++. A new control goes in its `TABLE`, in ParamId order.
+- `demo/vendor/` is the shared kit: never edit it, re-vendor with
+  `stoatworks-backend/resolume-demo/sync.sh`.
+
 ## Not done yet
 - Never loaded into Resolume on macOS. On Windows: the fleet's Arena gate, 9 of 9 on
   Arena 7.27.1 (llvmpipe); the expectation is `plugin-bench/arena/expect/patchwork.json`,
