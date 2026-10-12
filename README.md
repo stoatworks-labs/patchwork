@@ -1,26 +1,23 @@
 # patchwork
 
 > **AI-assisted project.** This codebase was created with [Claude](https://claude.com/claude-code)
-> (Anthropic), directed and reviewed by a human author. The behaviour is not asserted
-> but measured: an offline harness drives the real plugin class in a headless GL
-> context and checks each claim — a wall with nothing wrong is the clip to the byte,
-> a stuck address line blacks half the rows and doubles the other half while the
-> module's mean light stays put, a cut in the clip arrives one hop per frame in the
-> exact order of the cable for every route, corner and port size, a broken cable loses
-> a suffix of its chain, the repeated tiles are the right way round byte for byte in
-> every motion, a lost card holds the last frame it received, the heat follows its
-> one-pole to 1e-7 with red drooping first, and a tripped supply blinks on the frame
-> it should — with fifteen negative controls and seven one-character mutants that
-> prove the checks can fail. It has **never been loaded into Resolume on macOS**.
-> On Windows, a build of v0.1.0 loads, registers and renders in Resolume Arena 7.27.1 with all 54 host controls as declared, on software rendering. See [Status](#status).
+> (Anthropic), directed and reviewed by a human author. It has **never been loaded into Resolume
+> on macOS**. On Windows, a build of v0.1.0 loads, registers and renders in Resolume Arena 7.27.1
+> with all 54 host controls as declared, on software rendering. Everything else is measured by an
+> offline harness that drives the real plugin class in a headless GL context, along with fifteen
+> negative controls and seven one-character mutants to show the checks can fail. The full rundown
+> is under [Status](#status).
 
-A faulty LED wall, as an FFGL effect for [Resolume](https://resolume.com) Arena and
-Avenue.
+A faulty LED wall for [Resolume](https://resolume.com) Arena and Avenue, as an FFGL effect. It
+builds the wall the way real ones are built, a few hundred cabinets on a daisy-chained cable, and
+then lets any stage of that chain fail: cabinets a shade off from each other, zebra-striped
+modules, everything after a cable break gone dark, the same three tiles repeated down the snake.
+The wall from the bottom of the rental pile, basically.
 
 ![A kaleidoscope clip on a failing LED wall: cabinets a shade off in brightness and colour, dark seams, zebra-striped modules, dead cabinets, three bright tiles from the centre repeated along the cable's snake, and the bottom rows downstream of a cable break showing the receiving cards' red test pattern](docs/hero.png)
 
-<sub>One frame, rendered by `pwtest`, the offline harness — not captured from
-Resolume. Resolume's bundled `IntoTheGlow_02` on the defaults (60 x 60 LED cabinets at
+<sub>One frame, rendered by `pwtest`, the offline harness, rather than captured from
+Resolume. It's Resolume's bundled `IntoTheGlow_02` on the defaults (60 x 60 LED cabinets at
 two pixels an LED), with three cabinets from the middle of the cable repeated along the
 next 14, more zebra, colour spread and seams, and the cable broken near its end (Lost
 Signal: Test Pattern).</sub>
@@ -59,16 +56,16 @@ macOS builds are signed and notarised and open normally. The Windows builds are 
 
 ## The one idea
 
-An LED wall is not one display. It is a few hundred small ones on a daisy chain.
+An LED wall is a few hundred small displays on a daisy chain, doing their best to look like one.
 
 A processor cuts the picture into cabinet-sized rectangles and sends them down a
-cable that snakes from cabinet to cabinet. Each cabinet's receiving card takes its
+cable that snakes from cabinet to cabinet. Each cabinet's receiving card picks out its
 rectangle by its place on the chain, applies its own calibration table, and drives
 its modules one scan line at a time through an address decoder and a row of
 shift-register driver chips.
 
-**Every failure an operator sees is one stage of that chain lying.** The plugin is
-the chain, with every stage able to fail:
+**Every failure an operator sees is one stage of that chain lying.** The plugin builds
+the chain and lets any stage of it fail:
 
 | stage | the lie | what you see |
 | --- | --- | --- |
@@ -89,49 +86,49 @@ the chain, with every stage able to fail:
 
 ## What falls out
 
-None of these is drawn. Each is one stage misbehaving on the picture it is given:
+None of this is drawn on. Each one is a stage of the chain misbehaving with the picture it's given:
 
-- **The patchwork.** `Batches` K draws K calibration tables and deals them to the
-  cabinets; each module adds its own. A full-white clip shows it worst — which is
-  why every gain is at most 1, so nothing clips away the evidence.
+- **The patchwork.** `Batches` K draws K calibration tables and deals them out to the
+  cabinets, and each module adds its own on top. A full-white clip shows it worst, which
+  is why every gain is at most 1: nothing gets to clip the evidence away.
 - **The repeat, along a virtual line.** The line is the cable. `Repeat Tiles` N
   takes N cabinets' content from `Repeat From` along the chain and repeats it over
   `Repeat Reach` of the rest. `Repeat Motion` moves it: **Step** a whole cabinet at a
   time, **Scroll** an LED at a time, **Ping-Pong**, **Random**. Because the line is a
   snake, alternate rows run opposite ways and the content turns the corner at the end
-  of every row. It is a map fault, so a card always shows a rectangle of the source —
-  never mirrored.
+  of every row. It's a mapping fault, so a card always shows a rectangle of the source
+  the right way round, never mirrored.
 - **Breaks follow the cable.** A break loses everything downstream of it, which on a
   snake is a ragged-edged block from the middle of a row onwards. `Tiles Per Port`
-  splits the wall into several chains, each with its own fate; `Intermittent` makes a
-  bad connector flicker in and out.
+  splits the wall into several chains, each with its own luck, and `Intermittent` makes
+  a bad connector flicker in and out.
 - **A cut ripples.** `Hop Delay` buffers a fraction of a frame per hop, so a hard
   cut in the clip sweeps down the snake; `Lag Tiles` makes a few cards late at random.
-- **Zebra stripes are light moved, not removed.** A stuck address line leaves half
+- **Zebra stripes move light rather than lose it.** A stuck address line leaves half
   the rows unselected and selects the other half twice, so the lit rows show the sum
-  of two rows' data: the module's mean is unchanged. `Zebra Width` picks the line
-  (stripes of 1–16 rows); a 1/1 static-drive module has no address lines and cannot
+  of two rows' data and the module's mean stays the same. `Zebra Width` picks the line
+  (stripes of 1–16 rows); a 1/1 static-drive module has no address lines, so it can't
   zebra; `Floating` flickers.
-- **The supply listens to the content.** `PSU Limit` caps each cabinet's mean drive:
-  `Dim` sags a bright cabinet down to the cap, `Hiccup` trips it off for 0.27 s and
-  lets it blink back — so a white flash knocks out exactly the bright cabinets.
+- **The supply listens to the content.** `PSU Limit` caps each cabinet's mean drive.
+  `Dim` sags a bright cabinet down to the cap, and `Hiccup` trips it off for 0.27 s and
+  lets it blink back, so a white flash knocks out the bright cabinets and only those.
 - **Heat is slow and red.** With `Heat` up, each cabinet's temperature follows its own
-  drive with time constant `Heat Time`; red loses light about three times faster than
+  drive with time constant `Heat Time`. Red loses light about three times faster than
   green and six times faster than blue, so a bright logo held for a minute leaves a
-  cyan ghost of its cabinets after it has gone.
+  cyan ghost of its cabinets after it's gone.
 
-`Fill 1` with every fault, spread and process at zero is the clip, byte for byte.
+`Fill 1` with every fault, spread and process at zero gives you back the clip, byte for byte.
 
 [![Patchwork — a faulty LED wall, for Resolume](docs/video-thumb.png)](https://www.youtube.com/watch?v=UCtfAbSm1sI)
 
-*[Watch it](https://www.youtube.com/watch?v=UCtfAbSm1sI) — 62 seconds: the defaults' patchwork,
+*[Watch it](https://www.youtube.com/watch?v=UCtfAbSm1sI) (62 seconds): the defaults' patchwork,
 three batches of cabinets, three cabinets repeated along the cable and scrolling the opposite
 way on every other row of the snake, then stepping and jumping, a cut rippling down the chain, a
 broken cable whose downstream cards hold, show their test pattern and then garbage, zebra stripes
-stuck and floating, supplies tripping on flashes, and the module and LED faults close up. Every
-frame is the real plugin's output: an FFGL plugin has no window, so the footage is rendered by
-this repository's own offline harness (`pwtest --pipe`, driven by a cue sheet) rather than filmed
-off a screen, and the clips are Resolume's bundled demo media.*
+stuck and floating, supplies tripping on flashes, and the module and LED faults close up. It's
+all the plugin's own output. An FFGL plugin doesn't have a window to film, so the footage comes
+from this repo's offline harness (`pwtest --pipe`, driven by a cue sheet) rather than a screen,
+and the clips are Resolume's bundled demo media.*
 
 ## Controls
 
@@ -149,21 +146,21 @@ off a screen, and the clips are Resolume's bundled demo media.*
 | **Output** | Fault Seed, Mix. |
 
 The rates are probabilities per cabinet, module, chain or LED. A seed fails the same
-cabinets every time; only Dropouts, Flicker, Intermittent and Floating zebra are
+cabinets every time. Only Dropouts, Flicker, Intermittent and Floating zebra are
 processes in time, and the heat and the hiccup have memory. The defaults are a rental
-wall after a hard season — every cabinet a little off, a couple dead, a few modules
-striped, pinstriped, missing a colour or slipped, the odd cabinet dropping out. The
-repeat is off by default: it is a choice, not a fault you would leave in.
+wall after a hard season: every cabinet a bit off, a couple dead, a few modules
+striped, pinstriped, missing a colour or slipped, and the odd cabinet dropping out. The
+repeat is off by default, because it's something you'd choose rather than a fault you'd leave in.
 
 ## Status
 
-**v0.1.0, and honestly early — 6 October 2026.**
+**v0.1.0, 6 October 2026, and still early days.**
 
 ### Measured offline, on macOS
 
-`tools/verify.sh` passes on this machine (Apple Silicon, macOS 26) against a fresh
-universal Release build, running every check at **two rasters**, 1280×720 and 320×180,
-and again on **Apple's software renderer** at 320×180. What it establishes:
+`tools/verify.sh` passes on this Mac (Apple Silicon, macOS 26) against a fresh
+universal Release build. It runs every check at **two rasters**, 1280×720 and 320×180,
+and again on **Apple's software renderer** at 320×180. Here's what it shows:
 
 | check | result |
 | --- | --- |
@@ -187,52 +184,52 @@ and again on **Apple's software renderer** at 320×180. What it establishes:
 | shaders | all 8 compile through `glslc`, not merely through Apple's driver |
 | the bundle | universal (`x86_64 arm64`), exports `plugMain`, ad-hoc signs; `oxbow` reports `SW Patchwork` / `PW01` / `effect` and renders 120 frames through `plugMain` |
 
-Render cost, GPU time by `GL_TIME_ELAPSED`, median of 60 frames after a warm-up, on a
-GPU shared with other work, at the defaults (LED Pitch 2)
-**0.27 ms** at 720p, **0.46 ms** at 1080p, **1.40 ms** at 4K (8% of a 60 fps frame); at LED
-Pitch 1 with the repeat, the delay ring and the hold all live, **0.43**, **0.92** and **3.63 ms**.
-The ring of past frames is RGBA8 at LED resolution, up to 32 frames in 256 MB, and is
-allocated only while Hop Delay or Lag Tiles is up. macOS figures only.
+Render cost, as GPU time by `GL_TIME_ELAPSED` (the median of 60 frames after a warm-up, on a
+GPU that was busy with other work too), at the defaults (LED Pitch 2):
+**0.27 ms** at 720p, **0.46 ms** at 1080p and **1.40 ms** at 4K (8% of a 60 fps frame). At LED
+Pitch 1 with the repeat, the delay ring and the hold all live, it's **0.43**, **0.92** and **3.63 ms**.
+The ring of past frames is RGBA8 at LED resolution, up to 32 frames in 256 MB, and only gets
+allocated while Hop Delay or Lag Tiles is up. These are macOS figures only.
 
 ### Not established
 
 It has **never been loaded into Resolume on macOS**. Everything above was compiled,
 rendered and measured offline against the real plugin class in a headless CGL context,
-plus an `oxbow` load. What the host's clock does to the processes over a long session,
-and how the faults read to someone who runs real walls, are untested.
+plus a load in `oxbow`. I haven't tested what the host's clock does to the processes over
+a long session, or how the faults read to someone who runs real walls.
 
 **Windows, in Resolume Arena 7.27.1** (win-lab, Mesa llvmpipe, no GPU, 2026-10-06): a
-build of this source loads from Extra Effects, registers as `SW Patchwork` / `PW01` /
-effect, all 54 host controls match the declaration in name, order, type, range and
-default, it renders, and Arena's log stays clean: 9 of 9 of the fleet gate's checks.
-45 controls moved the picture (48 under a precondition); Heat Time, Hop Delay, Lag Tiles
+build of this source loads from Extra Effects and registers as `SW Patchwork` / `PW01` /
+effect. All 54 host controls match the declaration in name, order, type, range and
+default, it renders, and Arena's log stays clean, which is 9 of 9 of the fleet gate's checks.
+45 controls moved the picture (48 under a precondition). Heat Time, Hop Delay, Lag Tiles
 and Lag Frames were inconclusive, because the gate compares single frames of a still
 picture, and a delay or a time constant of a still picture is the same picture;
 `tools/sweep.py` proves all four on a moving card. Software rendering says nothing about
 a GPU or about speed.
-The mechanisms are real; the rates, the test pattern and the garbage are not any
-vendor's. No OpenFX port (not in scope for 0.1.0).
+The mechanisms are how real walls fail, but the rates, the test pattern and the garbage
+aren't any vendor's. No OpenFX port (not in scope for 0.1.0).
 
-The [user guide](docs/USER-GUIDE.md) covers every control, what it does and why.
+The [user guide](docs/USER-GUIDE.md) goes through every control, what it does and why.
 
 ## Browser demo
 
-**<https://patchwork-demo.stoatworks-labs.com/>** — every control, with the plugin's own
+**<https://patchwork-demo.stoatworks-labs.com/>** has every control, with the plugin's own
 names, groups and defaults. The seven passes are the plugin's own GLSL, spliced unedited
-into `demo/shaders.js` with the order `Assemble()` joins them in
+into `demo/shaders.js` in the order `Assemble()` joins them
 (`demo/tools/check_shaders.py`, run by `tools/verify.sh`, fails on a changed character or
-a changed order). The CPU half — the controls, the wall's layout, the repeat's motion, the
-time slots, the ring of past frames, the hold and the heat — is a JavaScript port in
-`demo/plugin.js` that **nothing checks but a reader**; compared once with `pwtest --pipe`
-on the same frames, nine settings of ten agreed byte for byte over 40 frames and the
-tenth in all but 2 pixels of 9.2 million, by one level. It runs on the page's generated clips
-at the display's frame rate, so Hop Delay counts the browser's frames, not a
-composition's; the integer controls are dropdowns. It is a demo, not the plugin, and the
-page says what it does not reproduce.
+a changed order). The CPU half (the controls, the wall's layout, the repeat's motion, the
+time slots, the ring of past frames, the hold and the heat) is a JavaScript port in
+`demo/plugin.js`, and **nothing checks that but a reader**. I compared it once with
+`pwtest --pipe` on the same frames: nine settings of ten agreed byte for byte over 40 frames,
+and the tenth in all but 2 pixels of 9.2 million, by one level. It runs on the page's
+generated clips at the display's frame rate, so Hop Delay counts the browser's frames rather
+than a composition's, and the integer controls are dropdowns. It's a demo rather than the
+plugin, and the page says what it doesn't reproduce.
 
 ## Build
 
-Needs CMake 3.15+, a C++17 compiler, and the FFGL SDK submodule.
+You'll need CMake 3.15+, a C++17 compiler and the FFGL SDK submodule.
 
 ```bash
 git clone --recursive https://github.com/stoatworks-labs/patchwork
@@ -243,7 +240,7 @@ cmake --install build     # into ~/Documents/Resolume Arena/Extra Effects
 ```
 
 macOS builds are universal (Apple Silicon + Intel) by default; add
-`-DCMAKE_OSX_ARCHITECTURES=arm64` for a faster dev build. Windows needs GLEW via vcpkg.
+`-DCMAKE_OSX_ARCHITECTURES=arm64` for a quicker dev build. Windows needs GLEW via vcpkg.
 
 ## Building and testing
 
@@ -261,7 +258,7 @@ python3 tools/sweep.py                                   # no control is silentl
 tools/verify.sh                                          # all of it, on a fresh universal build
 ```
 
-Every check takes `--size`; run it at 320×180 as well as the raster you care about.
+Every check takes `--size`, so run it at 320×180 as well as the raster you care about.
 Footage goes through the real shaders with `--pipe`, in the fleet's frame format:
 
 ```bash
