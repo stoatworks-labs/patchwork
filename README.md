@@ -14,6 +14,8 @@ then lets any stage of that chain fail: cabinets a shade off from each other, ze
 modules, everything after a cable break gone dark, the same three tiles repeated down the snake.
 The wall from the bottom of the rental pile, basically.
 
+The [project page](https://stoatworks-labs.com/software/patchwork/) has the downloads, the [user guide](https://stoatworks-labs.com/software/patchwork/guide/) and the video.
+
 ![A kaleidoscope clip on a failing LED wall: cabinets a shade off in brightness and colour, dark seams, zebra-striped modules, dead cabinets, three bright tiles from the centre repeated along the cable's snake, and the bottom rows downstream of a cable break showing the receiving cards' red test pattern](docs/hero.png)
 
 <sub>One frame, rendered by `pwtest`, the offline harness, rather than captured from
